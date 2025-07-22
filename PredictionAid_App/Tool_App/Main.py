@@ -1,13 +1,18 @@
 # To run type in terminal:
 # cd Tool_App
-# python -m streamlit run Main.py or C:\Users\sdv.werkstudent\.conda\envs\tool_app\python.exe -m streamlit run Main.py
+# python -m streamlit run Main.py
 import streamlit as st
 from streamlit import __main__
 from PIL import Image
+import os
 
-image1 = "DeVoogt_logo.jpg"
-image2 = "Feadship_logo.jpg"
-image3 = "DesignAID_logo.png"
+# Get the directory where this script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Define image paths relative to the script directory
+image1 = os.path.join(script_dir, "DeVoogt_logo.jpg")
+image2 = os.path.join(script_dir, "Feadship_logo.jpg")
+image3 = os.path.join(script_dir, "DesignAID_logo.png")
 
 st.image(image1, width=800, use_container_width=False)
 col1, col2 = st.columns([1, 1])
