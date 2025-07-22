@@ -416,6 +416,7 @@ st.header("📈Variable Selection Tool (Linear + Nonlinear)")
 st.write("This page allows you to select the most relevant variables for your model.")
 
 # File upload
+st.subheader("1. Upload your dataset")
 uploaded_file = st.file_uploader("Upload your dataset (Excel or CSV file)", type=["csv", "xlsx"])
 if uploaded_file:
     if uploaded_file.name.endswith('.xlsx'):
@@ -430,7 +431,8 @@ if uploaded_file:
         len_table = len(table)
         st.write(f"Number of rows: {len_table}")
         st.session_state['len_table'] = len_table
-
+    
+    st.subheader("2. Select Variables to Check Correlations")
     corr_columns = st.multiselect("**Select all variables for the Correlation matrix**", options=table.columns)
     st.session_state['corr_columns'] = corr_columns
 
@@ -443,7 +445,7 @@ if uploaded_file:
 
 #######################################
     # Display Correlation matrix
-    st.subheader("Correlation Matrix of Selected Variables")
+    st.subheader("Correlation Matrix")
     if corr_columns:
         df_main = table[corr_columns].copy()
         st.session_state['df_main_raw'] = df_main
@@ -470,17 +472,14 @@ if uploaded_file:
 
 #######################################
         # Allow user to finalize the independent variables (X) and dependent variable (Y) after viewing the correlation matrix
-        st.subheader("Choose Final Variables for Selection Analysis")
+        st.subheader("3. Choose Final Variables for Selection Analysis")
 
         # Select dependent variable (Y)
         y_column = st.selectbox("Select the dependent variable (Y) for your analysis:", options=corr_columns, key='y_column')
 
-        # Remove the selected Y variable from the list of options for X
-        st.subheader("Choose Variables (X) from the list above to further exclude for Selection Analysis")
-        
         # Allow user to exclude variables from analysis (besides Y)
         exclude_vars = st.multiselect(
-            "Select variables to exclude from your analysis (besides Y):",
+            "Select variables (X) to exclude from your analysis (besides Y):”. :",
             options=[col for col in corr_columns if col != y_column],
             key='exclude_vars'
         )
@@ -516,15 +515,6 @@ if uploaded_file:
             x = sm.add_constant(x)
             st.session_state['y'] = y
             st.session_state['x'] = x
-            
-            no_features = st.number_input(
-                "Number of features to select:",
-                min_value=2,
-                max_value=len(x_columns),
-                value=min(2, len(x_columns)),
-                step=1,
-                key='no_features'
-            )
 
         with st.expander("Preview Cleaned Dataset (without missing values)"):
             st.dataframe(df_main_cleaned)
@@ -532,10 +522,22 @@ if uploaded_file:
             st.write(f"Number of rows: {len_df_main_cleaned}")
             st.session_state['len_df_main_cleaned'] = len_df_main_cleaned
 
+        st.subheader("4. Set Number of Features to Select")
+        no_features = st.number_input(
+            "Number of features ('n') to select:",
+            min_value=2,
+            max_value=len(x_columns),
+            value=min(2, len(x_columns)),
+            step=1,
+            key='no_features'
+        )
+
+
 #######################################
 # SVM linear: splitting/no splitting of dataset
 #######################################
-        st.header("Support Vector Method (SVM) - Linear Kernel")
+        st.header("5. Model Output Comparison – Linear SVM, Nonlinear SVM, and Elastic Net")
+        st.subheader("5A. Support Vector Method (SVM) - Linear Kernel")
         # Let user choose whether to split the dataset
         split_data = st.checkbox("Split dataset into train/test?", value=True, key='split_data')
 
@@ -612,7 +614,7 @@ if uploaded_file:
 #######################################
 # SVM non-linear: splitting/no splitting of dataset
 #######################################
-        st.header("Support Vector Method (SVM) - Non-Linear Kernel")
+        st.subheader("5B. Support Vector Method (SVM) - Nonlinear Kernel")
 
         # Select features and fit SVM based on user choice
         if split_data:
@@ -680,7 +682,7 @@ if uploaded_file:
 #######################################
 # Elastic Net: splitting/no splitting of dataset
 #######################################
-        st.header("Elastic Net Regression (Linear)")
+        st.subheader("5C. Elastic Net Regression - Linear")
 
         # Select features and fit Elastic Net based on user choice
         if split_data:
@@ -767,6 +769,7 @@ if uploaded_file:
             # Cross-validation results
             cross_validation(EN_model_refit, X_train_rfe, y)
 
+        st.header("6. Interpret Results and Choose the Best Model")
 # #######################################
 #         # Make a prediction for new data
 #         st.subheader("Make a Prediction with SVM Linear, Non-Linear, and Elastic Net")
