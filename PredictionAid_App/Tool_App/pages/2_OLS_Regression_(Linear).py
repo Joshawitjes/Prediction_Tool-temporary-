@@ -21,7 +21,7 @@ if st.button("Test Snowflake Connection"):
 # ...existing code...
 
 ########################################################################
-# Page 1: OLS Regression
+# Page 2: OLS Regression
 ########################################################################
 
 st.markdown("## 📊 OLS Regression (Linear) for Prediction")

@@ -1,5 +1,5 @@
 ########################################################################
-# Page 3: Variable Selection Tool
+# Page 1: Variable Selection Tool
 ########################################################################
 
 import streamlit as st
@@ -12,7 +12,7 @@ import pandas as pd
 # import sys 
 
 #################################
-# Page 3: Functions
+# Page 1: Functions
 #################################
 from sklearn.preprocessing import StandardScaler
 import numpy as np
@@ -67,17 +67,13 @@ def correlation_matrix(var, df):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# SVM Linear
+# 5A) SVM Linear
 ##############################
 # Function to select & fit with Support Vector Method (linear)
 def SVM_linear_select_fit(X, y, n_features=2, split_data=False, test_size=0.3, random_state=42):
     # Optionally split dataset
     split_result = train_test_split(X, y, test_size=test_size, random_state=random_state) if split_data else (X, None, y, None)
     X_train, X_test, y_train, y_test = split_result
-
-    if split_data:
-        st.write(f"Training Set Size: {X_train.shape[0]} rows")
-        st.write(f"Test Set Size: {X_test.shape[0]} rows")
 
     # Hyperparameter tuning using GridSearchCV
     param_grid = {
@@ -129,7 +125,7 @@ from sklearn.inspection import permutation_importance
 import seaborn as sns
 
 
-# SVM Non-Linear
+# 5B) SVM Non-Linear
 ##############################
 # Function voor nonlinear SVM
 def SVM_nonlinear_select_fit(X, y, n_features=2, split_data=False, test_size=0.3, random_state=42):
@@ -137,8 +133,6 @@ def SVM_nonlinear_select_fit(X, y, n_features=2, split_data=False, test_size=0.3
     # Optionally split dataset
     if split_data:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-        st.write(f"Training Set Size: {X_train.shape[0]} rows")
-        st.write(f"Test Set Size: {X_test.shape[0]} rows")
     else:
         X_train, y_train = X, y
         X_test, y_test = None, None  # No test set in this case
@@ -154,7 +148,7 @@ def SVM_nonlinear_select_fit(X, y, n_features=2, split_data=False, test_size=0.3
     # Fit the model on the training data
     svr.fit(X_train, y_train)
     best_svr = svr.best_estimator_
-    st.write("Best Hyperparameters:", svr.best_params_)
+    #st.write("Best Hyperparameters:", svr.best_params_)
     
     # Compute feature importance using permutation importance
     perm_importance = permutation_importance(best_svr, X_train, y_train, scoring='r2', n_repeats=10, random_state=random_state)
@@ -177,7 +171,6 @@ def SVM_nonlinear_select_fit(X, y, n_features=2, split_data=False, test_size=0.3
     # Map indices to actual feature names if available
     if hasattr(X_train, 'columns'):
         select_feat_SVM = X_train.columns[selected_features]
-        st.write("Selected Features Names (after permutation importance):", select_feat_SVM)
 
     # Fit the model to the training data
     svr_nonlinear = SVR(kernel='rbf', C=best_svr.C, epsilon=best_svr.epsilon, gamma=best_svr.gamma)
@@ -197,21 +190,7 @@ def predict_SVM_nonlinear(X_test_rfe, svr_nonlinear):
     return y_pred
 
 
-# Function to visualize feature importances nonlinear SVM (optional)
-def visualize_feature_nonlinear_SVM(select_feat_SVM, perm_importance):
-    # Extract importance values
-    selected_importance_values = perm_importance.importances_mean[perm_importance.importances_mean.argsort()[::-1][:len(select_feat_SVM)]]
-    
-    # Plot feature importances
-    plt.bar(select_feat_SVM, selected_importance_values)
-    plt.xlabel('Feature Name')
-    plt.ylabel('Permutation Importance Score')
-    plt.title('Feature Importances (Non-Linear SVM - RBF Kernel)')
-    plt.xticks(rotation=45)
-    plt.show()
-
-
-# Elastic Net
+# 5C) Elastic Net
 ##############################
 # Function to fit with Elastic Net (Lasso+Ridge)
 def elastic_net_fit_all(X, y, split_data=False, test_size=0.3, random_state=42):
@@ -219,8 +198,6 @@ def elastic_net_fit_all(X, y, split_data=False, test_size=0.3, random_state=42):
     # Optionally split dataset
     if split_data:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-        print(f"Training Set Size: {X_train.shape[0]} rows")
-        print(f"Test Set Size: {X_test.shape[0]} rows")
     else:
         X_train, y_train = X, y
         X_test, y_test = None, None  # No test set in this case
@@ -334,7 +311,7 @@ def visualize_feature_importances_SVM(select_feat_SVM, SVM_coeff):
     bars = ax.bar(select_feat_SVM, SVM_coeff, color=sns.color_palette("crest", len(select_feat_SVM)))
     ax.set_xlabel('Feature Name', fontsize=12, labelpad=10)
     ax.set_ylabel('Coefficient Value', fontsize=12, labelpad=10)
-    ax.set_title('SVM Linear Feature Importances', fontsize=15, weight='bold', pad=15)
+    ax.set_title('SVM Linear Feature Coefficients', fontsize=15, weight='bold', pad=15)
     ax.axhline(0, color='gray', linewidth=1, linestyle='--')
     plt.xticks(rotation=35, ha='right', fontsize=11)
     plt.yticks(fontsize=11)
@@ -349,13 +326,30 @@ def visualize_feature_importances_SVM(select_feat_SVM, SVM_coeff):
     plt.tight_layout()
     st.pyplot(fig)
 
+# Function to visualize feature importances nonlinear SVM (Streamlit compatible)
+def visualize_feature_nonlinear_SVM(select_feat_SVM, perm_importance):
+    # Extract importance values for selected features in the correct order
+    selected_indices = perm_importance.importances_mean.argsort()[::-1][:len(select_feat_SVM)]
+    selected_importance_values = perm_importance.importances_mean[selected_indices]
+
+    fig, ax = plt.subplots(figsize=(max(6, len(select_feat_SVM) * 0.7), 5))
+    bars = ax.bar(select_feat_SVM, selected_importance_values, color=sns.color_palette("crest", len(select_feat_SVM)))
+    ax.set_xlabel('Feature Name', fontsize=12, labelpad=10)
+    ax.set_ylabel('Permutation Importance Score', fontsize=12, labelpad=10)
+    ax.set_title('SVM Nonlinear Feature Importances', fontsize=15, weight='bold', pad=15)
+    plt.xticks(rotation=35, ha='right', fontsize=11)
+    ax.set_yticks([])  # Hide y-axis numbers
+    # Do not annotate bars with numbers
+    plt.tight_layout()
+    st.pyplot(fig)
+
 # Function to visualize feature importances EN (Streamlit compatible)
 def visualize_feature_importances_EN(select_feat_EN, EN_best_coeff):
     fig, ax = plt.subplots(figsize=(max(6, len(select_feat_EN) * 0.7), 5))
     bars = ax.bar(select_feat_EN, EN_best_coeff, color=sns.color_palette("crest", len(select_feat_EN)))
     ax.set_xlabel('Feature Name', fontsize=12, labelpad=10)
     ax.set_ylabel('Coefficient Value', fontsize=12, labelpad=10)
-    ax.set_title('Elastic Net Feature Importances', fontsize=15, weight='bold', pad=15)
+    ax.set_title('Elastic Net Feature Coefficients', fontsize=15, weight='bold', pad=15)
     ax.axhline(0, color='gray', linewidth=1, linestyle='--')
     plt.xticks(rotation=35, ha='right', fontsize=11)
     plt.yticks(fontsize=11)
@@ -406,14 +400,43 @@ def cross_validation(select_method, x, y):
             "Fold": [f"Fold {i+1}" for i in range(len(cv_scores))],
             "R² Score": [f"{score:.4f}" for score in cv_scores]
         }))
-    st.write(f"**Average R² Score:** {avg_cv_score:.4f}")
-    
-#################################
-#################################
-#################################
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.markdown(f"<span style='font-size:18px; color:#1976d2; font-weight:bold;'>⭐️ Important Score! </span>", unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"<b>Average R²: {avg_cv_score:.4f}</b>", unsafe_allow_html=True)
 
-st.header("📈Variable Selection Tool (Linear + Nonlinear)")
-st.write("This page allows you to select the most relevant variables for your model.")
+    if avg_cv_score < 0:
+        st.warning(
+            "⚠️ The average R² score is negative. This means that the model performs worse than simply predicting the mean of the target variable for all observations. "
+            "A negative R² indicates that the model does not capture the underlying patterns in your data and may not be suitable for prediction. "
+            "Consider revisiting your feature selection, data quality, or model choice."
+        )
+###################################################################################################
+###################################################################################################
+###################################################################################################
+
+st.header("📈 Variable Selection Tool (Linear & Nonlinear Models)")
+st.markdown("""
+<div style="background-color:#f0f4f8; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+<b>Welcome to the Variable Selection Tool!</b><br><br>
+This interactive page guides you through identifying the most relevant variables for your predictive modeling task. After completing the steps below, the app will automatically fit and evaluate <b>three model types</b> for variable selection and prediction performance:
+<ul>
+    <li><b>Linear SVM Regression</b> – identifies linear relationships between features and the target variable.</li>
+    <li><b>Nonlinear SVM Regression (RBF kernel)</b> – captures complex, nonlinear patterns in your data.</li>
+    <li><b>Elastic Net Regression</b> – a linear model that combines Lasso and Ridge penalties for robust variable selection.</li>
+</ul>
+For each model, you will receive:
+<ul>
+    <li>The most important features selected by the model</li>
+    <li>Performance metrics showing how well the model predicts the target variable</li>
+    <li>Clear visualizations to help interpret the results</li>
+</ul>
+The goal of this tool is to <b>explore and understand the underlying patterns in your dataset</b>. By comparing model performance, you can determine which variables are most relevant for your analysis and whether your data is mostly linear or nonlinear.<b> Use the selected variables from the best fitting method/model as input for the other two tools - OLS (linear) or Random Forest (nonlinear) - to make predictions. <b>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<hr style='border: 2px solid #bbb;'>", unsafe_allow_html=True)
 
 # File upload
 st.subheader("1. Upload your dataset")
@@ -532,19 +555,43 @@ if uploaded_file:
             key='no_features'
         )
 
+        # Let user choose whether to split the dataset
+        split_data = st.checkbox("Split dataset into train/test?", value=True, key='split_data')
+        split_text = (
+            f"You have chosen to select the top **{no_features}** features "
+            f"and to **{'split' if split_data else 'not split'}** the dataset into training and test sets. "
+            "These settings will be applied consistently across all three models below (Linear SVM, Nonlinear SVM, and Elastic Net)."
+        )
+        st.info(split_text)
+        if split_data:
+            # Calculate train/test sizes based on user input and data length
+            test_size = 0.3  # default as in your code
+            if 'len_df_main_cleaned' in st.session_state:
+                n_total = st.session_state['len_df_main_cleaned']
+                n_test = int(np.round(n_total * test_size))
+                n_train = n_total - n_test
+                st.write(f"Training Set Size: {n_train} rows")
+                st.write(f"Test Set Size: {n_test} rows")
+            
+        st.markdown("<hr style='border: 2px solid #bbb;'>", unsafe_allow_html=True)
 
 #######################################
-# SVM linear: splitting/no splitting of dataset
+# 5A) SVM linear: splitting/no splitting of dataset
 #######################################
         st.header("5. Model Output Comparison – Linear SVM, Nonlinear SVM, and Elastic Net")
         st.subheader("5A. Support Vector Method (SVM) - Linear Kernel")
-        # Let user choose whether to split the dataset
-        split_data = st.checkbox("Split dataset into train/test?", value=True, key='split_data')
+        st.markdown("""
+    **How does the Linear SVM work here?**
+    - The model automatically tunes its key hyperparameters using cross-validation on the training set to find the best settings for your data.
+    - It applies Recursive Feature Elimination (RFE) to select the top *n* features (as specified above) that are most important for predicting the target variable.
+    - The final linear SVM model is then trained using only these selected features.
+    """)
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # Select features and fit SVM based on user choice
         if split_data:
             X_train, X_test, y_train, y_test, X_train_rfe, X_test_rfe, X_rfe, selected_lin_SVM, svr_model = SVM_linear_select_fit(
-                x, y, n_features=no_features, split_data=True
+                x, y, n_features=no_features, split_data=True, test_size=test_size
             )
             st.session_state['X_train'] = X_train
             st.session_state['X_test'] = X_test
@@ -559,6 +606,7 @@ if uploaded_file:
             # Extract SVM coefficients
             SVM_coeff = SVM_coefficients(svr_model)
             st.session_state['SVM_coeff'] = SVM_coeff
+
             # Predict SVM results
             y_pred_SVM = predict_SVM(X_test_rfe, svr_model)
             st.session_state['y_pred_SVM'] = y_pred_SVM
@@ -570,18 +618,20 @@ if uploaded_file:
             st.subheader("Actual vs Predicted (Test Set)")
             plot_pred_actual_results(y_test, y_pred_SVM)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y_test - y_pred_SVM) / y_test)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y_test, y_pred_SVM)
-            r2 = r2_score(y_test, y_pred_SVM)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R² Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(svr_model, X_rfe, y)
 
         else:
             X_train_rfe, selected_lin_SVM, svr_model = SVM_linear_select_fit(
-                x, y, n_features=no_features, split_data=False
+                x, y, n_features=no_features, split_data=False, test_size=test_size
             )
             st.session_state['X_train_rfe'] = X_train_rfe
             st.session_state['selected_lin_SVM'] = selected_lin_SVM
@@ -601,25 +651,34 @@ if uploaded_file:
             st.subheader("Actual vs Predicted")
             plot_pred_actual_results(y, y_pred_SVM)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y - y_pred_SVM) / y)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y, y_pred_SVM)
-            r2 = r2_score(y, y_pred_SVM)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R² Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(svr_model, X_train_rfe, y)
 
 
 #######################################
-# SVM non-linear: splitting/no splitting of dataset
+# 5B) SVM Nonlinear: splitting/no splitting of dataset
 #######################################
         st.subheader("5B. Support Vector Method (SVM) - Nonlinear Kernel")
-
+        st.markdown("""
+        **How does the Nonlinear SVM work here?**
+        - The model uses a nonlinear (RBF) kernel to capture complex relationships between features and the target variable.
+        - It automatically tunes its key hyperparameters using cross-validation to find the best settings for your data.
+        - Feature importance is determined using permutation importance: each feature is randomly shuffled, and the decrease in model performance is measured. If shuffling a feature leads to a large drop in accuracy, that feature is considered important.
+        """)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
         # Select features and fit SVM based on user choice
         if split_data:
             X_train, X_test, y_train, y_test, X_train_rfe, X_test_rfe, X_rfe, selected_nl_SVM, svr_nonlinear, perm_importance = SVM_nonlinear_select_fit(
-                x, y, n_features=no_features, split_data=True
+                x, y, n_features=no_features, split_data=True, test_size=test_size
             )
             st.session_state['X_train_nl'] = X_train
             st.session_state['X_test_nl'] = X_test
@@ -637,23 +696,26 @@ if uploaded_file:
             st.session_state['y_pred_SVM_nl'] = y_pred_SVM
             # Visualize feature importances
             visualize_feature_nonlinear_SVM(selected_nl_SVM, perm_importance)
+            st.info("Note. The values for the permutation importance scores (y-axis) are purposely not shown. These scores are not directly comparable to the coefficients from the linear SVM or Elastic Net models, as they represent relative feature importance rather than effect size.")
             
             # Plot Actual vs Predicted values (aesthetic style)
             st.subheader("Actual vs Predicted (Test Set)")
             plot_pred_actual_results(y_test, y_pred_SVM)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y_test - y_pred_SVM) / y_test)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y_test, y_pred_SVM)
-            r2 = r2_score(y_test, y_pred_SVM)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R^2 Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(svr_nonlinear, X_rfe, y)
 
         else:
             X_train_rfe, selected_nl_SVM, svr_nonlinear, perm_importance = SVM_nonlinear_select_fit(
-                x, y, n_features=no_features, split_data=False
+                x, y, n_features=no_features, split_data=False, test_size=test_size
             )
             st.session_state['X_train_rfe_nl'] = X_train_rfe
             st.session_state['selected_nl_SVM'] = selected_nl_SVM
@@ -670,25 +732,36 @@ if uploaded_file:
             st.subheader("Actual vs Predicted")
             plot_pred_actual_results(y, y_pred_SVM)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y - y_pred_SVM) / y)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+            
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y, y_pred_SVM)
-            r2 = r2_score(y, y_pred_SVM)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R² Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(svr_nonlinear, X_train_rfe, y)
 
 #######################################
-# Elastic Net: splitting/no splitting of dataset
+# 5C) Elastic Net: splitting/no splitting of dataset
 #######################################
         st.subheader("5C. Elastic Net Regression - Linear")
+        st.markdown("""
+        <b>How does the Elastic Net work here?</b><br>
+        <ul>
+        <li>Elastic Net is a linear regression method that combines both Lasso and Ridge regularization. This enables the model to select important variables by shrinking some coefficients to zero, while also addressing multicollinearity and reducing overfitting.</li>
+        <li>The model automatically tunes the balance between Lasso and Ridge penalties, as well as the overall regularization strength, using cross-validation on the training set. This ensures the final model is both accurate and interpretable for your data.</li>
+        <li><b>The features selected by Elastic Net may differ from those chosen by the Linear SVM (5A)</b>, as Elastic Net can exclude variables by setting their coefficients to zero.</li>
+        </ul>
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # Select features and fit Elastic Net based on user choice
         if split_data:
             # Fit Elastic Net on all features and get best estimator
             X_train, X_test, y_train, y_test, EN_hyperparams, EN_coeff_all, EN_coeff_nonzero, EN_model_all = elastic_net_fit_all(
-                x, y, split_data=True
+                x, y, split_data=True, test_size=test_size
             )
             st.session_state['X_train_en'] = X_train
             st.session_state['X_test_en'] = X_test
@@ -709,8 +782,6 @@ if uploaded_file:
             st.session_state['X_rfe_en'] = X_rfe
             st.session_state['EN_model_refit'] = EN_model_refit
             st.session_state['EN_best_coeff'] = EN_best_coeff
-            st.write(f"Training Set Size: {X_train.shape[0]} rows")
-            st.write(f"Test Set Size: {X_test.shape[0]} rows")
 
             # Predict Elastic Net results
             y_pred_EN = elastic_predict(X_test_rfe, EN_model_refit)
@@ -722,11 +793,13 @@ if uploaded_file:
             st.subheader("Actual vs Predicted (Test Set)")
             plot_pred_actual_results(y_test, y_pred_EN)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y_test - y_pred_EN) / y_test)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y_test, y_pred_EN)
-            r2 = r2_score(y_test, y_pred_EN)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R^2 Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(EN_model_refit, X_rfe, y)
@@ -734,7 +807,7 @@ if uploaded_file:
         else:
             # Fit Elastic Net on all features and get best estimator
             EN_hyperparams, EN_coeff_all, EN_coeff_nonzero, EN_model_all = elastic_net_fit_all(
-                x, y, split_data=False
+                x, y, split_data=False, test_size=test_size
             )
             st.session_state['EN_hyperparams'] = EN_hyperparams
             st.session_state['EN_coeff_all'] = EN_coeff_all
@@ -760,11 +833,13 @@ if uploaded_file:
             st.subheader("Actual vs Predicted")
             plot_pred_actual_results(y, y_pred_EN)
 
-            # Display evaluation metrics
+            # Mean Absolute Percentage Error (MAPE)
+            mape = np.mean(np.abs((y - y_pred_EN) / y)) * 100
+            st.write(f"Mean Absolute Percentage Error: {mape:.2f}%")
+
+            # Mean Squared Error (MSE)
             mse = mean_squared_error(y, y_pred_EN)
-            r2 = r2_score(y, y_pred_EN)
             st.write(f"Mean Squared Error: {mse:.2f}")
-            st.write(f"R^2 Score: {r2:.2f}")
 
             # Cross-validation results
             cross_validation(EN_model_refit, X_train_rfe, y)

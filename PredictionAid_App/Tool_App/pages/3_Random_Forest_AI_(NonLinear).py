@@ -1,5 +1,5 @@
 ########################################################################
-# Page 2: Random Forest AI (Nonlinear)
+# Page 3: Random Forest AI (Nonlinear)
 ########################################################################
 import streamlit as st
 import pandas as pd

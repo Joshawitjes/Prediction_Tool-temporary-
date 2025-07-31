@@ -1,6 +1,6 @@
 # To run type in terminal:
 # cd Tool_App
-# python -m streamlit run Main.py
+# python -m streamlit run Main.py or C:\Users\sdv.werkstudent\.conda\envs\tool_app\python.exe -m streamlit run Main.py
 import streamlit as st
 from streamlit import __main__
 from PIL import Image
@@ -32,10 +32,16 @@ Use the sidebar to navigate between the different available tools in the Predict
 - **Correlation Matrix**: This tool provides a visual representation of the correlation between different variables in your dataset. You can filter the matrix to focus on specific variables and understand their relationships better.""")
 
 
-# TO DO:
-# - kubus volume kan je niet aanpassen !
+# To do:
+############
+# Inleidend tekstje schrijven
 # Correlatie matrix filter automatiseren
-# User friendly maken, interpreteerbaar maken metrics: MAPE of confidence intervals, voorspellings range
+# Summary result comparison tabel Section 6.
+# Manual aanpassen hier en daar
+# Eventueel confidence intervals toevoegen aan de metrics voor prediction range
+
+# Later nog over nadenken?
+############
+# kubus volume kan je niet aanpassen ! Hier zitten limieten aan
 # navigeren makkelijker maken, onthouden geschiedenis, Variable Tool in subkopje
 # Eventueel predictions Variable Tool verbeteren (voor nu weggehaald)
-# Inleidend tekstje schrijven
