@@ -1,28 +1,34 @@
 # PredictionAID App
 
-A Streamlit-based application for predictive analysis with multiple tools including OLS Regression, Random Forest AI, and Variable Selection.
+A Streamlit-based application for predictive analysis with multiple tools including Variable Selection, OLS Regression and Random Forest AI.
 
 ## Quick Start
 
-### Option 1: Manual startup (Guaranteed to work)
-Navigate to the Tool_App folder and run with the specific conda environment:
-```bash
-cd Tool_App
-C:\Users\sdv.werkstudent\.conda\envs\tool_app\python.exe -m streamlit run Main.py
-```
+# Clone the git repository in some new directory
+git clone https://github.com/De-Voogt-Naval-Architects/engineering_spec_predictiontool.git
 
-### Option 2: For other users without conda environment
-If the conda environment doesn't exist, install dependencies first:
+# Navigate to the correct subfolder with the PredictionAid_App
+cd engineering_spec_predictiontool/PredictionAid_App
+
+
+### To actually run the file: 
 ```bash
+
+# Create a new environment (Python must be installed)
+python -m venv venv
+
+# Activate environment
+venv\Scripts\activate # should give (venv)
+
+# Install required packages
 pip install -r requirements.txt
+
+# Run streamlit app from within the Tool_App folder
 cd Tool_App
 python -m streamlit run Main.py
 ```
 
-**Note**: The startup scripts prioritize the working conda environment (`tool_app`) but will fall back to system Python if needed.
-
 ## Requirements
-
 Make sure you have Python installed and the required packages:
 ```bash
 pip install -r requirements.txt
