@@ -1,4 +1,5 @@
 # To run type in terminal:
+# from Anaconda Prompt: conda activate tool_app, then code . and then from here the rest
 # cd Tool_App
 # python -m streamlit run Main.py or C:\Users\sdv.werkstudent\.conda\envs\tool_app\python.exe -m streamlit run Main.py
 import streamlit as st
