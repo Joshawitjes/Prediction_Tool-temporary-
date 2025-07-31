@@ -4,26 +4,14 @@ A Streamlit-based application for predictive analysis with multiple tools includ
 
 ## Quick Start
 
-### Option 1: Using the startup script (Recommended)
-Simply run from the repository root:
-```bash
-python run_app.py
-```
-
-### Option 2: Using the batch file (Windows)
-Double-click `run_app.bat` or run from command prompt:
-```cmd
-run_app.bat
-```
-
-### Option 3: Manual startup (Guaranteed to work)
+### Option 1: Manual startup (Guaranteed to work)
 Navigate to the Tool_App folder and run with the specific conda environment:
 ```bash
 cd Tool_App
 C:\Users\sdv.werkstudent\.conda\envs\tool_app\python.exe -m streamlit run Main.py
 ```
 
-### Option 4: For other users without conda environment
+### Option 2: For other users without conda environment
 If the conda environment doesn't exist, install dependencies first:
 ```bash
 pip install -r requirements.txt
@@ -50,14 +38,21 @@ The main dependencies include:
 ## Project Structure
 ```
 PredictionAid_App/
-├── run_app.py          # Startup script
-├── run_app.bat         # Windows batch file
-├── requirements.txt    # Python dependencies
+├── README.md
+├── requirements.txt         # Python dependencies
 └── Tool_App/
-    ├── Main.py         # Main Streamlit application
-    ├── pages/          # Streamlit pages
-    ├── utils/          # Utility functions
-    └── *.jpg, *.png    # Image assets
+    ├── __init__.py
+    ├── Main.py              # Main Streamlit application
+    ├── DesignAID_logo.png
+    ├── DeVoogt_logo.jpg
+    ├── Feadship_logo.jpg
+    ├── pages/               # Streamlit pages
+    │   ├── 1_Tool_for_Variable_Selection_(Investigative).py
+    │   ├── 2_OLS_Regression_(Linear).py
+    │   └── 3_Random_Forest_AI_(NonLinear).py
+    └── utils/               # Utility functions
+        ├── __pycache__/
+        └── snowflake_utils.py
 ```
 
 ## Features
@@ -69,4 +64,4 @@ PredictionAid_App/
 
 ## Development
 
-The application uses relative paths so it can be run from any location where the repository is cloned. All image and file paths are resolved relative to the script locations.
+The application uses relative paths so it can be run from any location where the repository is cloned. All image and file paths are resolved relative to the script
